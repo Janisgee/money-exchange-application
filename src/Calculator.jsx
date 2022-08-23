@@ -1,8 +1,16 @@
-import react, { useState } from "react";
-import CalculateChange from "./CalculateChange";
+import { useState } from "react";
+
 export default function Calculator() {
   let [cash, setCash] = useState(3000);
   let [price, setPrice] = useState(4000);
+  let [loaded, setLoaded] = useState(false);
+  let [change, setChange] = useState({});
+
+  function showChange(newChange) {
+    console.log(newChange);
+    setLoaded(true);
+    setChange(newChange);
+  }
 
   function CalculateChange() {
     let returnValue = cash - price;
@@ -33,7 +41,25 @@ export default function Calculator() {
     return change;
   }
 
-  console.log(CalculateChange());
+  function toCalculateChangeObject() {
+    let moneyChange = CalculateChange();
+
+    return {
+      hundred: moneyChange.hundred,
+      fifty: moneyChange.fifty,
+      twenty: moneyChange.twenty,
+      ten: moneyChange.ten,
+      five: moneyChange.five,
+      two: moneyChange.two,
+      one: moneyChange.one,
+      fiftyCents: moneyChange.fiftyCents,
+      twentyCents: moneyChange.twentyCents,
+      tenCents: moneyChange.tenCents,
+      fiveCents: moneyChange.fiveCents,
+    };
+  }
+
+  console.log(toCalculateChangeObject());
   function handleCashNumber(event) {
     setCash(event.target.value * 100);
   }
@@ -42,9 +68,13 @@ export default function Calculator() {
     setPrice(event.target.value * 100);
   }
 
-  return (
+  function submitInput(event) {
+    event.preventDefault();
+    toCalculateChangeObject().then(showChange);
+  }
+  let form = (
     <div>
-      <form>
+      <form onSubmit={submitInput}>
         <label for="price">Price (Aud$) </label>
         <input type="number" min="0" id="price" onChange={handlePriceNumber} />
         <br />
@@ -53,4 +83,29 @@ export default function Calculator() {
       </form>
     </div>
   );
+
+  if (loaded) {
+    return (
+      <div>
+        {form}
+
+        <h2>Money Change</h2>
+        <ul>
+          <li>hundred: {change.hundred}</li>
+          <li>fifty: {change.fifty}</li>
+          <li>twenty: {change.twenty}</li>
+          <li>ten: {change.ten}</li>
+          <li>five: {change.five}</li>
+          <li>two: {change.two}</li>
+          <li>one: {change.one}</li>
+          <li>fiftyCents: {change.fiftyCents}</li>
+          <li>twentyCents: {change.twentyCents}</li>
+          <li>tenCents: {change.tenCents}</li>
+          <li>fiveCents: {change.fiveCents}</li>
+        </ul>
+      </div>
+    );
+  } else {
+    return <div>{form}</div>;
+  }
 }
